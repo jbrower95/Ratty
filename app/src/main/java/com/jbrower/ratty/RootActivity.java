@@ -13,8 +13,7 @@ import com.squareup.otto.Subscribe;
 
 public class RootActivity extends AppCompatActivity {
 
-    private static final String API_URL = "https://api.students.brown.edu/dining/menu";
-
+    /* The current menu */
     private RattyMenu mMenu;
 
     @Override
@@ -34,11 +33,11 @@ public class RootActivity extends AppCompatActivity {
 
     @Subscribe
     public void onFailedRattyMenu(RattyMenuFailedEvent event) {
-        Utils.showToast("Couldn't load menu: " + event.getData().getLocalizedMessage());
+        Utils.showToast(event.getData().getLocalizedMessage());
     }
 
     @Override
-    protected  void onDestroy() {
+    protected void onDestroy() {
         super.onDestroy();
         App.getBus().unregister(this);
     }

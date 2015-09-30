@@ -11,82 +11,12 @@ import java.util.List;
  * A local representation of the ratty menu.
  *
  *
- * Some sample JSON from the server:
-
- {
- "menus": [
- {
- "bistro": [
- "meatloaf w/ mushroom sauce",
- "vegan brown rice",
- "edamame beans w/ tri-colored peppers",
- "italian vegetable saute",
- "stir-fried carrots w/ fresh herbs",
- "dessert: panettone bread pudding"
- ],
- "chef's corner": [
- "mushroom macaroni & cheese",
- "edamame beans w/ tri-colored peppers",
- "italian vegetable saute",
- "stir-fried carrots w/ fresh herbs",
- "white & whole wheat pasta",
- "vegan garden vegetable sauce",
- "meat sauce",
- "choice of assorted pizzas",
- "for your safety, it is the customer's obligation to inform the server about any food allergies."
- ],
- "daily sidebars": [
- "salad bar: greek salad bar",
- "soup & bread station: italian sausage soup w/ tortellini and vegetarian corn chowder / honey bran flaxseed bread"
- ],
- "day": 29,
- "eatery": "ratty",
- "end_hour": 19,
- "end_minute": 30,
- "grill": [
- "hamburgers, cheeseburgers",
- "hot dogs",
- "grilled citrus herb chicken",
- "waffle cut fries",
- "sliced turkey & ham",
- "sliced american & cheddar cheese",
- "gingered turkey salad",
- "sliced lettuce and tomato",
- "accompaniments: cheese sauce,bbq chips"
- ],
- "meal": "dinner",
- "mMonth": 9,
- "roots & shoots": [
- "eggplant parmesan",
- "vegan baked polenta",
- "edamame beans w/ tri-colored peppers",
- "stir-fried carrots w/ fresh herbs",
- "southwest black bean & sweet potato vegan patty",
- "traditional vegan patty",
- "vegan brown rice",
- "carrot sticks",
- "tri-colored pasta salad",
- "red wheatberry grain bar",
- "for your safety, it is the customer's obligation to inform the server about any food allergies."
- ],
- "start_hour": 16,
- "start_minute": 0,
- "year": 2015
- }
- ],
- "num_results": 1
- }
-
-
-
-
- *
- *
  * Created by Justin on 9/29/15.
  */
 public final class RattyMenu {
 
     private static final String KEY_MENUS = "menus";
+    private static final String KEY_ERROR = "error";
 
     private static final String KEY_MENU_BISTRO = "bistro";
     private static final String KEY_MENU_CHEFS_CORNER = "chef's corner";
@@ -108,8 +38,14 @@ public final class RattyMenu {
     private final List<String> menuItemsRootsAndShoots;
     private final List<String> menuItemsGrill;
 
-    public RattyMenu(String response) throws JSONException {
+    public RattyMenu(String response) throws JSONException, RattyMenuException {
         final JSONObject root = new JSONObject(response);
+
+        if (root.has(KEY_ERROR)) {
+            final String error = root.getJSONArray(KEY_ERROR).getString(0);
+            throw new RattyMenuException(error);
+        }
+
         if (!root.has(KEY_MENUS)) {
             throw new JSONException("Menu object didn't contain a menu.");
         }
@@ -185,6 +121,8 @@ public final class RattyMenu {
                 return menuItemsDailySidebars;
             case KEY_MENU_ROOTS_AND_SHOOTS:
                 return menuItemsRootsAndShoots;
+            case KEY_MENU_GRILL:
+                return menuItemsGrill;
             default:
                 return new LinkedList<>();
         }

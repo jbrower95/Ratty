@@ -12,12 +12,12 @@ public final class NetworkUtils {
         try {
             BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
             String line = "";
-            String result = "";
-            while((line = bufferedReader.readLine()) != null)
-                result += line;
-
+            final StringBuilder result = new StringBuilder();
+            while((line = bufferedReader.readLine()) != null) {
+                result.append(line);
+            }
             inputStream.close();
-            return result;
+            return result.toString();
         } catch (Exception e){
             return null;
         }

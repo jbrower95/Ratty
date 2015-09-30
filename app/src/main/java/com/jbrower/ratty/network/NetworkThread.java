@@ -179,10 +179,17 @@ public class NetworkThread implements Runnable {
             Log.d(TAG, "Getting url: " + url);
 
             final HttpClient client = new DefaultHttpClient();
-            final StringEntity jsonEntity = new StringEntity(jsonToSend);
-            jsonEntity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+
+            final StringEntity jsonEntity;
+            if (!TextUtils.isEmpty(jsonToSend)) {
+                jsonEntity = new StringEntity(jsonToSend);
+                jsonEntity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+            } else {
+                jsonEntity = null;
+            }
 
             if (mAbortFlag.get()) {
+                Log.d(TAG, "ABORTING");
                 return;
             }
 
@@ -192,12 +199,16 @@ public class NetworkThread implements Runnable {
                     break;
                 case METHOD_PUT:
                     mRequest = new HttpPut(url);
-                    ((HttpPut) mRequest).setEntity(jsonEntity);
+                    if (jsonEntity != null) {
+                        ((HttpPut) mRequest).setEntity(jsonEntity);
+                    }
                     break;
                 case METHOD_POST:
                 default:
                     mRequest = new HttpPost(url);
-                    ((HttpPost) mRequest).setEntity(jsonEntity);
+                    if (jsonEntity != null) {
+                        ((HttpPost) mRequest).setEntity(jsonEntity);
+                    }
                     break;
             }
 
@@ -209,19 +220,27 @@ public class NetworkThread implements Runnable {
             }
 
             if (mAbortFlag.get()) {
+                Log.d(TAG, "ABORTING");
                 return;
             }
+
+            Log.d(TAG, "Executing request...");
 
             final HttpResponse response = client.execute(mRequest);
             final HttpEntity responseObject = response.getEntity();
 
             if (mAbortFlag.get()) {
+                Log.d(TAG, "ABORTING");
                 return;
             }
 
             final String result = NetworkUtils.consumeInputStream(responseObject.getContent());
 
+            Log.d(TAG, "Got response: " + result);
+
+
             if (mAbortFlag.get()) {
+                Log.d(TAG, "ABORTING");
                 return;
             }
 

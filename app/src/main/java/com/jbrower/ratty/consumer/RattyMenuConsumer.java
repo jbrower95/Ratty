@@ -5,8 +5,6 @@ import com.jbrower.ratty.event.RattyMenuFailedEvent;
 import com.jbrower.ratty.event.RattyMenuReceivedEvent;
 import com.jbrower.ratty.model.RattyMenu;
 
-import org.json.JSONException;
-
 /**
  * A consumer for the Ratty's menu data.
  * Created by Justin on 9/29/15.
@@ -17,7 +15,7 @@ public class RattyMenuConsumer implements Consumer {
         try {
             final RattyMenu menu = new RattyMenu(response);
             App.getBus().post(new RattyMenuReceivedEvent(menu));
-        } catch (JSONException e) {
+        } catch (Exception e) {
             App.getBus().post(new RattyMenuFailedEvent(e));
         }
     }
