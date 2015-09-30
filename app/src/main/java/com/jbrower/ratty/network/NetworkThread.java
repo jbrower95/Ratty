@@ -23,12 +23,13 @@ enum RequestType {
     METHOD_GET,
     METHOD_PUT,
     METHOD_POST
-};
+}
 
 /**
- * A thread for making network connections and reporting them back.
+ * A thread for making network connections and reporting them back using consumers.
  * Created by Justin on 8/31/15.
  */
+@SuppressWarnings("deprecation")
 public class NetworkThread implements Runnable {
 
     private static final String TAG = NetworkThread.class.getName();
@@ -41,7 +42,7 @@ public class NetworkThread implements Runnable {
     private Consumer consumer;
     private HttpUriRequest mRequest;
     private Thread mThread;
-    private AtomicBoolean mAbortFlag = new AtomicBoolean(false);
+    private final AtomicBoolean mAbortFlag = new AtomicBoolean(false);
 
     public static class Builder {
 
@@ -176,8 +177,6 @@ public class NetworkThread implements Runnable {
     public void run() {
 
         try {
-            Log.d(TAG, "Getting url: " + url);
-
             final HttpClient client = new DefaultHttpClient();
 
             final StringEntity jsonEntity;
@@ -189,7 +188,7 @@ public class NetworkThread implements Runnable {
             }
 
             if (mAbortFlag.get()) {
-                Log.d(TAG, "ABORTING");
+                Log.v(TAG, "Aborting request...");
                 return;
             }
 
@@ -220,27 +219,27 @@ public class NetworkThread implements Runnable {
             }
 
             if (mAbortFlag.get()) {
-                Log.d(TAG, "ABORTING");
+                Log.v(TAG, "Aborting request");
                 return;
             }
 
-            Log.d(TAG, "Executing request...");
+            Log.v(TAG, "Executing request...");
 
             final HttpResponse response = client.execute(mRequest);
             final HttpEntity responseObject = response.getEntity();
 
             if (mAbortFlag.get()) {
-                Log.d(TAG, "ABORTING");
+                Log.v(TAG, "Aborting");
                 return;
             }
 
             final String result = NetworkUtils.consumeInputStream(responseObject.getContent());
+            Log.v(TAG, "Contacted url: " + url);
 
-            Log.d(TAG, "Got response: " + result);
-
+            Log.v(TAG, "Got response: " + result);
 
             if (mAbortFlag.get()) {
-                Log.d(TAG, "ABORTING");
+                Log.v(TAG, "Aborting");
                 return;
             }
 
